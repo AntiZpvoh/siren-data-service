@@ -90,8 +90,7 @@ class Session(models.Model):
     createTime = models.DateTimeField("session created time", auto_now_add=True)
     modifiedTime = models.DateTimeField("session modified time", auto_now=True)
     
-    def __init__(self, userId: str, openaiSessionId: str):
-        super().__init__()
+    def set(self, userId: str, openaiSessionId: str):
         self.user = User.objects.filter(id=userId).first()
         self.openaiSessionId = openaiSessionId
         print(self.id)
@@ -102,7 +101,22 @@ class Session(models.Model):
         groupsForPart23 = QuestionGroup.objects.filter(type="2&3").order_by("?").all()[:10]
         self.questionGroups.set(groupsForPart1 | groupsForPart23)
         print(self.questionGroups)
-        # self.save()
+        
+    def questionGroupsToCSV(self):
+        fieldsTemplate = "\"{}\",\"{}\",\"{}\",\"{}\"\n"
+        csvOutput = fieldsTemplate.format("part", "question", "topic", "question_group_id")
+        for questionGroup in self.questionGroups.all():
+            questions = Question.objects.filter(questionGroup=questionGroup).all()
+            for question in questions:
+                line = fieldsTemplate.format(
+                    question.partType,
+                    question.content,
+                    questionGroup.topic,
+                    questionGroup.id
+                )
+                # line = re.escape(line)
+                csvOutput += line
+        return csvOutput
         
     def toObject(self):
         return {
