@@ -132,6 +132,9 @@ class Session(models.Model):
             ],
             "questions_csv": self.questionGroupsToCSV()
         }
+        
+    def __str__(self):
+        return "{}_{}_{}".format(self.id, self.openaiSessionId, self.user.username)
     
     
     

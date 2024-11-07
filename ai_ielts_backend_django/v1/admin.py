@@ -3,7 +3,7 @@ from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import UserAdmin
-from .models import User, QuestionGroup, Question
+from .models import User, QuestionGroup, Question, Session
 class UserAdmin(BaseUserAdmin):
   fieldsets = (
       (None, {'fields': ('email', 'password', )}),
@@ -34,6 +34,28 @@ class QuestionGroupAdmin(admin.ModelAdmin):
     search_fields = ('name', 'type', 'topic')
     
 
+class QuestionAdmin(admin.ModelAdmin):
+    add_fieldsets = (
+        (None, {
+            'classes': ('wide', ),
+            'fields': ('questionGroup', 'partType', 'content'),
+        }),
+    )
+    list_display = ['id', 'questionGroup', 'partType', 'content', 'createTime']
+    search_fields = ('questionGroup', 'partType', 'content')
+    
+class SessionAdmin(admin.ModelAdmin):
+    add_fieldsets = (
+        (None, {
+            'classes': ('wide', ),
+            'fields': ('user', 'openaiSessionId'),
+        }),
+    )
+    list_display = ['id', 'user', 'openaiSessionId', 'createTime']
+    search_fields = ('id', 'user', 'openaiSessionId')
+    
+
 admin.site.register(User, UserAdmin)
 admin.site.register(QuestionGroup, QuestionGroupAdmin)
-admin.site.register(Question)
+admin.site.register(Question, QuestionAdmin)
+admin.site.register(Session, SessionAdmin)
