@@ -1,3 +1,4 @@
+from __future__ import annotations
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 import json
@@ -90,13 +91,16 @@ class Session(models.Model):
     createTime = models.DateTimeField("session created time", auto_now_add=True)
     modifiedTime = models.DateTimeField("session modified time", auto_now=True)
     
-    def set(self, userId: str, openaiSessionId: str):
-        self.user = User.objects.filter(id=userId).first()
-        self.openaiSessionId = openaiSessionId
+    def set(self, userId: str | None, openaiSessionId: str | None):
+        if userId is not None:
+            self.user = User.objects.filter(id=userId).first()
+        if openaiSessionId is not None:
+            self.openaiSessionId = openaiSessionId
         print(self.id)
         self.save()
         print(self.id)
         
+    def retrieveQuestions(self):
         groupsForPart1 = QuestionGroup.objects.filter(type="1").order_by("?").all()[:10]
         groupsForPart23 = QuestionGroup.objects.filter(type="2&3").order_by("?").all()[:10]
         self.questionGroups.set(groupsForPart1 | groupsForPart23)
@@ -125,7 +129,8 @@ class Session(models.Model):
             "openai_session_id": self.openaiSessionId,
             "question_groups": [
                 questionGroup.toObject() for questionGroup in list(self.questionGroups.all())
-            ]
+            ],
+            "questions_csv": self.questionGroupsToCSV()
         }
     
     

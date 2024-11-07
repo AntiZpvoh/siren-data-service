@@ -9,10 +9,11 @@ from .models import Session
 def createSession(request: HttpRequest):
     if request.method == "POST":
         data = json.loads(request.body)
-        userId = int(data["user_id"])
-        openaiSessionId = data["openai_session_id"]
+        userId = int(data["user_id"]) if "user_id" in data else None
+        openaiSessionId = data["openai_session_id"] if "openai_session_id" in data else None
         session = Session()
         session.set(userId, openaiSessionId)
+        session.retrieveQuestions()
         session.save()
         responseData = {
             "status": "successful",
@@ -24,10 +25,20 @@ def createSession(request: HttpRequest):
 
 
 @csrf_exempt
-def getSession(request: HttpRequest, sessionId):
+def getOrPutSession(request: HttpRequest, sessionId):
     if request.method == "GET":
         session = Session.objects.filter(id=sessionId).first()
         print(session)
+        responseData = session.toObject()
+        return JsonResponse(responseData)
+    elif request.method == "PUT":
+        session = Session.objects.filter(id=sessionId).first()
+        print(session)
+        data = json.loads(request.body)
+        userId = int(data["user_id"]) if "user_id" in data else None
+        openaiSessionId = data["openai_session_id"] if "openai_session_id" in data else None
+        session.set(userId, openaiSessionId)
+        session.save()
         responseData = session.toObject()
         return JsonResponse(responseData)
         
@@ -43,6 +54,22 @@ def getSessionQuestionsCSV(request: HttpRequest, sessionId):
             "status": "successful",
             "result": session.questionGroupsToCSV()
         }
+        return JsonResponse(responseData)
+        
+    return JsonResponse({"status": "unsupport method"})
+
+
+@csrf_exempt
+def updateSession(request: HttpRequest, sessionId):
+    if request.method == "PUT":
+        session = Session.objects.filter(id=sessionId).first()
+        print(session)
+        data = json.loads(request.body)
+        userId = int(data["user_id"]) if "user_id" in data else None
+        openaiSessionId = data["openai_session_id"] if "openai_session_id" in data else None
+        session.set(userId, openaiSessionId)
+        session.save()
+        responseData = session.toObject()
         return JsonResponse(responseData)
         
     return JsonResponse({"status": "unsupport method"})
