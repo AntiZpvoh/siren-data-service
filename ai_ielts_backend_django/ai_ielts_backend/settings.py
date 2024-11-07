@@ -27,6 +27,8 @@ DEBUG = True
 
 ALLOWED_HOSTS = ["jellyandyoung.life"]
 
+CSRF_TRUSTED_ORIGINS = ['https://jellyandyoung.life']
+
 
 # Application definition
 
