@@ -101,8 +101,8 @@ class Session(models.Model):
         print(self.id)
         
     def retrieveQuestions(self):
-        groupsForPart1 = QuestionGroup.objects.filter(type="1").order_by("?").all()[:10]
-        groupsForPart23 = QuestionGroup.objects.filter(type="2&3").order_by("?").all()[:10]
+        groupsForPart1 = QuestionGroup.objects.filter(type="1").order_by("?").all()[:5]
+        groupsForPart23 = QuestionGroup.objects.filter(type="2&3").order_by("?").all()[:1]
         self.questionGroups.set(groupsForPart1 | groupsForPart23)
         print(self.questionGroups)
         
