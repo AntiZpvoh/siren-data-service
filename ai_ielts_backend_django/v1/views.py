@@ -1,9 +1,9 @@
 from django.shortcuts import render
 from django.http import HttpResponse, HttpRequest, JsonResponse
-from django.views.decorators.csrf import csrf_exempt, csrf_protect
+from django.views.decorators.csrf import csrf_exempt
 from django.core.files.storage import FileSystemStorage
 import json
-from .models import Session
+from .models import Session, QuestionGroup, Question
 
 @csrf_exempt
 def createSession(request: HttpRequest):
@@ -76,15 +76,45 @@ def updateSession(request: HttpRequest, sessionId):
 
 
 @csrf_exempt
-def upload_file(request):
-    if request.method == 'POST' and request.FILES['file']:
-        # Get the uploaded file from the request
-        uploaded_file = request.FILES['file']
+def createQuestion(request: HttpRequest, questionGroupId):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        partType = int(data["partType"]) if "partType" in data else None
+        content = data["content"] if "content" in data else None
+        questionGroup = QuestionGroup.objects.filter(id=questionGroupId).first()
         
-        # Save the file
-        fs = FileSystemStorage()
-        filename = fs.save(uploaded_file.name, uploaded_file)
-        uploaded_file_url = fs.url(filename)
+        question = Question()
+        question.partType = partType
+        question.content = content
+        question.questionGroup = questionGroup
+        question.save()
+        responseData = {
+            "status": "successful",
+            "result": question.toObject()
+        }
+        return JsonResponse(responseData)
         
-        return HttpResponse(f"File uploaded successfully: {uploaded_file_url}")
-    return render(request, 'upload.html')
+    return JsonResponse({"status": "unsupport method"})
+
+
+@csrf_exempt
+def createQuestionGroup(request: HttpRequest):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        name = data["name"] if "name" in data else None
+        type = data["type"] if "type" in data else None
+        topic = data["topic"] if "topic" in data else None
+        description = data["description"] if "description" in data else None
+        questionGroup = QuestionGroup()
+        questionGroup.name = name
+        questionGroup.type = type
+        questionGroup.topic = topic
+        questionGroup.description = description
+        questionGroup.save()
+        responseData = {
+            "status": "successful",
+            "result": questionGroup.toObject()
+        }
+        return JsonResponse(responseData)
+        
+    return JsonResponse({"status": "unsupport method"})

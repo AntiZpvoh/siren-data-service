@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-e&o&o--%15a#67woshv+7%*j7_wgwa7#!y5nxj7$(t1tskd$cg
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["jellyandyoung.life", "localhost"]
+ALLOWED_HOSTS = ["jellyandyoung.life", "localhost", "127.0.0.1"]
 
 CSRF_TRUSTED_ORIGINS = ['https://jellyandyoung.life', 'http://localhost']
 
@@ -114,6 +114,7 @@ REST_FRAMEWORK = {
       'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
       'rest_framework.authentication.SessionAuthentication',
       'rest_framework.authentication.BasicAuthentication',
+      'rest_framework.authentication.TokenAuthentication',
   ),
 }
 
@@ -134,6 +135,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = 'static/'
+
+STATIC_ROOT = '/var/www/html/static'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
